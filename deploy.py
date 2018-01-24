@@ -3,7 +3,8 @@ import sys
 from time import sleep
 import boto3
 
-# Setup code: 
+
+# Setup code:
 # Put contents of deploy code into root of code folder
 # Ensure name of DL script to run on EC2 is in the root folder
 # Name this script 'build_model.py'
@@ -11,52 +12,31 @@ import boto3
 # Setup deploy box:
 # Install Python 3.6 + Boto3 + awscli (using pip) on box that will invoke deployment (dev box, CI box)
 # Run 'aws configure' in Python dir and enter access keys for created User
-# Enter default region e.g 'us-east-1' and select 'json' as default output
-
-# Setup AWS resources (in default region):
-# Create IAM User Group w/ programmatic access named 'DeployUserGroup'
-# Attach 'AmazonEC2FullAccess' and 'AWSCodeDeployFullAccess' policies to 'DeployUserGroup'
-# Create IAM User w/ programmatic access named 'DeployUser' and add to 'DeployUserGroup'
-# Create a IAM Role named 'CodeDeployRole' that includes the 'AWSCodeDeployRole' and 'AmazonS3FullAccess' policies
-# Create AWS CodeDeploy Application w/ name 'DeepLearningApplication'
-# Create a Deployment Group named 'DeepLearningDeployGroup' that uses EC2 instances with tag 'Name:DeepLearningBox' and Service Role 'AWSCodeDeployRole'.
-# Ensure that 'DeepLearningDeployGroup' is attached to 'DeepLearningApplication'
-# Partially create a CodeDeploy Deployment w/ repository type Github, complete connection GitHub then cancel 
-# (Optional for debugging) Create an AWS Security Group that allows SSH incoming connections w/ name 'SSH'
 
 
-APP_NAME = 'DeepLearningApplication'
-DEPLOY_TAG = ['Name', 'DeepLearningBox']
-# AWS S3 bucket (with versioning enabled) to store output
-app_bucket_name = '<bucket_name>'
+AWS_REGION = 'us-east-1'
 DEEP_LEARN_AMI = 'Deep Learning AMI (Ubuntu) Version 2.0'
 DEEP_LEARN_INSTANCE_TYPE = 'p2.xlarge'
+DEPLOY_TAG = ['Name', 'DeepLearningBox']
 
 print('Hello. Starting deploy...')
 
 # Connect to EC2
 ec2 = boto3.client('ec2')
-region_name = ec2._client_config.region_name
 
 # Requst deep learning Spot Instance
 print('Retrieving deep learning', '"' + DEEP_LEARN_AMI + '"',
-      '"AMI id for region', region_name + '...')
+      'AMI id for region', AWS_REGION + '...')
 image_filter = [{'Name': 'name',
                  'Values': [DEEP_LEARN_AMI]}]
 images = ec2.describe_images(Filters=image_filter)
 image_id = images['Images'][0]['ImageId']
-print('Success - Retrieved AMI id', image_id)
+print('Success - Retrieved AMI ', image_id)
 
 print('Requesting deep learning spot instance from EC2...')
-code_deploy_agent_bucket = 'aws-codedeploy-us-' + region_name
-user_data = r'#!/bin/bash\n'\
-            'apt-get -y update\n'\
-            'apt-get -y install ruby\n'\
-            'apt-get -y install wget\n'\
-            'cd /home/ubuntu\n'\
-            'wget https://{0}.s3.amazonaws.com/latest/install\n'\
-            'chmod +x ./install\n'\
-            './install auto\n'.format(code_deploy_agent_bucket)
+
+with open('start.sh', 'r') as file:
+    user_data = file.read()
 user_data = base64.b64encode(user_data.encode()).decode('ascii')
 
 launch_spec = {
@@ -72,10 +52,10 @@ response = ec2.request_spot_instances(
 
 request_id = response['SpotInstanceRequests'][0]['SpotInstanceRequestId']
 print('Success - Spot request', request_id,
-      'created by EC2...\nWaiting for fulfillment from EC2...')
+      'created by EC2.\nWaiting for fulfillment from EC2...')
 
 
-# Wait for Spot Instance Request fulfullment
+# Wait for Spot Instance Request fulfillment
 request_filter = [{'Name': 'spot-instance-request-id', 'Values': [request_id]}]
 while True:
     sleep(10)
@@ -91,6 +71,12 @@ while True:
     else:
         print('Update - Status received from EC2', code + '...',
               'Trying again...')
+    # TODO: check timeout and cancel if past timeout
+    # if time_elapsed > timeout:
+        # print('Spot Request timeout reached.  Last status was', code)
+        # print('Cancelling Spot Request...')
+        # print('Exiting program.  Bye.')
+        break
 
 ec2.create_tags(
     Resources=[instance_id],
@@ -98,23 +84,4 @@ ec2.create_tags(
 )
 
 print('Success - Spot request fulfilled by EC2 via instance', instance_id)
-
-# deploy app to instances with app_deploy_name (specify ID?)
-# via github repo + commit ID (repo and commit should come from the command line)
-
-# put output (logs, models etc.) into S3 bucket
-
-# terminate instance (cancel spot request)
-print('Terminating instance...')
-response = ec2.terminate_instances(
-    InstanceIds=[instance_id]
-)
-
-status = response['TerminatingInstances'][0]['CurrentState']['Name']
-if status != 'running':
-    print('Success - Instance termination command received by EC2.')
-else:
-    print('Failure - Instance termination failed. Current state is',
-          status, '.', 'Use EC2 console terminate instance.')
-
-print('Deploy complete. Bye.')
+print('Deploy complete.')
