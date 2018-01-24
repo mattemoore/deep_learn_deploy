@@ -3,18 +3,29 @@ import sys
 from time import sleep
 import boto3
 
+# What does this do?
+# Save time and money.
+# Deep Learning spot instances are 30% cheaper than on-deman instances.
+# Run 'deploy.py' and walk away, knowing you won't spend any more money than necessary to build your models.
+# This script automatically requests a Deep Learning spot instance, runs a script from source control, archives the output and terminates the instance.
 
-# Setup code:
-# Put contents of deploy code into root of code folder
-# Ensure name of DL script to run on EC2 is in the root folder
-# Name this script 'build_model.py'
+# Requirements (deploy box):
+# Python 3.6
+# Boto3
+# awscli
 
-# Setup deploy box:
-# Install Python 3.6 + Boto3 + awscli (using pip) on box that will invoke deployment (dev box, CI box)
-# Run 'aws configure' in Python dir and enter access keys for created User
+# Setup:
+# Run awscli to set keys (need EC2 and S3 permissions) and region
+# Put contents of this repo into root of code to deploy
+# Modify code folder structure vars in 'start.sh' (required)
+# Modify AWS instance vars in 'deploy.py' (not required)
 
+# Usage:
+# Run 'deploy.py' on deploy box to create spot instance request
+# When request is fulfilled a Deep Learning instance is created that runs 'start.sh' at bootup
+# After start.sh completes, the instance is shutdown (terminated as it is a spot request)
+# Output (e.g. .pkl files and logs) available in S3 directory
 
-AWS_REGION = 'us-east-1'
 DEEP_LEARN_AMI = 'Deep Learning AMI (Ubuntu) Version 2.0'
 DEEP_LEARN_INSTANCE_TYPE = 'p2.xlarge'
 DEPLOY_TAG = ['Name', 'DeepLearningBox']
@@ -26,12 +37,12 @@ ec2 = boto3.client('ec2')
 
 # Requst deep learning Spot Instance
 print('Retrieving deep learning', '"' + DEEP_LEARN_AMI + '"',
-      'AMI id for region', AWS_REGION + '...')
+      'AMI id for region', ec2._client_config.region_name + '...')
 image_filter = [{'Name': 'name',
                  'Values': [DEEP_LEARN_AMI]}]
 images = ec2.describe_images(Filters=image_filter)
 image_id = images['Images'][0]['ImageId']
-print('Success - Retrieved AMI ', image_id)
+print('Success - Retrieved AMI', image_id)
 
 print('Requesting deep learning spot instance from EC2...')
 
@@ -71,12 +82,6 @@ while True:
     else:
         print('Update - Status received from EC2', code + '...',
               'Trying again...')
-    # TODO: check timeout and cancel if past timeout
-    # if time_elapsed > timeout:
-        # print('Spot Request timeout reached.  Last status was', code)
-        # print('Cancelling Spot Request...')
-        # print('Exiting program.  Bye.')
-        break
 
 ec2.create_tags(
     Resources=[instance_id],
