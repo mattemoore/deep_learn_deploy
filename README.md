@@ -1,9 +1,9 @@
 ## What does this do?
-
- - Test models on your desktop then quickly and easily build full models on DL instances on AWS
-- Run *deploy.py* and walk away, knowing you won't spend any more money than necessary to build your models.
-- This script automatically requests a Deep Learning GPU spot instance, runs a script from source control, archives the output and terminates the instance.
-- Save time and money. AWS deep learning spot instances are 30% cheaper than on-demand instances.
+ 
+- Test models on your desktop then build full models on DL spot instances on AWS
+- Instances are created, used and terminated automatically
+- More lightweight than using Ansible, Chef or Terraform
+- Save money. AWS deep learning spot instances are 30% cheaper than on-demand instances.
 
 ## Requirements
 - Python 3.6
@@ -17,12 +17,12 @@
 - Modify AWS instance settings in *deploy.py* (not mandatory)
 
 ## Usage and Flow
-
-- Run 'deploy.py' to create spot instance request
+- Run 'deploy.py' to create spot instance request 
 - When request is fulfilled a Deep Learning instance is created that runs *start.sh* at bootup
-- After start.sh completes, the instance is shutdown (terminated as it is a spot request)
-- Output (e.g. .pkl files and logs) available in S3 directory
+- *start.sh* will pull down your DL script from GitHub and run it 
+- After DL script completes start.sh will terminate instance
+- DL script output (e.g. .pkl files and logs) available in S3 directory
 
 ## Notes/Ideas
 - Datasets need to be downloaded via the python script specified in start.sh Downloading massive datasets for every run could incur significant data transfer costs.
-- 
+- Support for attaching a persistent volume?
