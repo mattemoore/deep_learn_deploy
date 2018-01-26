@@ -4,12 +4,13 @@ from time import sleep
 import boto3
 
 # What does this do?
-# Save time and money.
-# Deep Learning spot instances are 30% cheaper than on-deman instances.
+# Test models on your desktop then when you are ready to build the full model, commit script to github and then use 
+# this tool to build the full models using AWS GPU compute instances. 
+# Save time and money - AWS deep learning spot instances are 30% cheaper than on-demand instances.
 # Run 'deploy.py' and walk away, knowing you won't spend any more money than necessary to build your models.
 # This script automatically requests a Deep Learning spot instance, runs a script from source control, archives the output and terminates the instance.
 
-# Requirements (deploy box):
+# Requirements:
 # Python 3.6
 # Boto3
 # awscli
@@ -17,11 +18,11 @@ import boto3
 # Setup:
 # Run awscli to set keys (need EC2 and S3 permissions) and region
 # Put contents of this repo into root of code to deploy
-# Modify code folder structure vars in 'start.sh' (required)
-# Modify AWS instance vars in 'deploy.py' (not required)
+# Modify code structure and github settings in 'start.sh' (mandatory)
+# Modify AWS instance settings in 'deploy.py' (not mandatory)
 
-# Usage:
-# Run 'deploy.py' on deploy box to create spot instance request
+# Usage and Flow:
+# Run 'deploy.py' to create spot instance request
 # When request is fulfilled a Deep Learning instance is created that runs 'start.sh' at bootup
 # After start.sh completes, the instance is shutdown (terminated as it is a spot request)
 # Output (e.g. .pkl files and logs) available in S3 directory
@@ -71,17 +72,23 @@ request_filter = [{'Name': 'spot-instance-request-id', 'Values': [request_id]}]
 while True:
     sleep(10)
     response = ec2.describe_spot_instance_requests(Filters=request_filter)
-    code = response['SpotInstanceRequests'][0]['Status']['Code']
-    if code == 'fulfilled':
-        instance_id = response['SpotInstanceRequests'][0]['InstanceId']
-        break
-    elif code == 'instance-terminated-by-user':
-        print('Failure - Instance was terminated by user.\
-               Exiting program.  Bye.')
-        sys.exit()
+
+    if len(response['SpotInstanceRequests']) > 0:
+        code = response['SpotInstanceRequests'][0]['Status']['Code']
+        if code == 'fulfilled':
+            instance_id = response['SpotInstanceRequests'][0]['InstanceId']
+            break
+        elif code == 'instance-terminated-by-user':
+            print('Failure - Instance was terminated by user.\
+                   Exiting program.  Bye.')
+            sys.exit()
+        else:
+            print('Update - Spot requst not fulfilled yet.\
+                   Current status', code + '...',
+                  'Querying again...')
     else:
-        print('Update - Status received from EC2', code + '...',
-              'Trying again...')
+        print('Update - Spot instance details not available yet.',
+              'Querying again...')
 
 ec2.create_tags(
     Resources=[instance_id],

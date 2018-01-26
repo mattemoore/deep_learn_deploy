@@ -15,7 +15,8 @@ sudo git clone $GIT_REPO
 # chmod -R +x -name '*.py'
 cd $PATH_TO_SCRIPT
 sudo mkdir $OUTPUT_DIR
-THEANO_FLAGS=device=cuda python $SCRIPT_NAME
+dt=$(date '+%d/%m/%Y %H:%M:%S')
+THEANO_FLAGS=device=cuda python $SCRIPT_NAME > '$OUTPUT_DIR\$dt.log'
 cd $OUTPUT_DIR
 # TODO: Put output (logs, models etc.) into S3 bucket - tag bucket with commit and timstamp
 sudo shutdown -P
