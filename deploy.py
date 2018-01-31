@@ -23,6 +23,11 @@ print('Success - Retrieved AMI', image_id)
 
 print('Requesting deep learning spot instance from EC2...')
 
+# TODO: insert creds from awscli on deploy box into user_data
+# so we can upload script output to S3
+# S3_USER_KEY=s3key
+# S3_SECRET=s3secret
+
 with open('start.sh', 'r') as file:
     user_data = file.read()
 user_data = base64.b64encode(user_data.encode()).decode('ascii')
