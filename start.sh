@@ -1,12 +1,11 @@
 #!/bin/bash
+#cloud-boothook
+echo 'RUNNING USER SCRIPT...'
 GIT_REPO=lushdog/DeepLearning
 PATH_TO_SCRIPT=DeepLearning/deep_learn_deploy 
 SCRIPT_NAME=build_model.py
 OUTPUT_DIR=output
-S3_BUCKET=deep_learning_model_outputs
-# TODO: get credentials from deploy.py
-# S3_USER_KEY=s3key
-# S3_SECRET=s3secret
+S3_BUCKET=deep_learning_outputs
 DL_ENV=tensorflow_p36
 # for MXNet(+Keras1) with Python3 (CUDA 9) _____________________ mxnet_p36
 # for MXNet(+Keras1) with Python2 (CUDA 9) _____________________ mxnet_p27
@@ -23,7 +22,11 @@ DL_ENV=tensorflow_p36
 # for base Python3 (CUDA 9) ____________________________________ python3
 
 # Add Python Packages here as needed by build_model.py
-# sudo pip install requests
+# e.g. sudo pip install requests
+
+#automatically filled in by deploy.py
+S3_USER_KEY=[key] 
+S3_SECRET=[secret]
 
 sudo apt-get update
 sudo apt-get install git -y
@@ -36,10 +39,11 @@ sudo mkdir $OUTPUT_DIR
 sudo bash -c "source ~/anaconda3/bin/activate $DL_ENV && THEANO_FLAGS=device=cuda python $SCRIPT_NAME > $OUTPUT_DIR/$SCRIPT_NAME.log"
 cd $OUTPUT_DIR
 # TODO: finish script output push to S3 bucket
+# sudo cp /var/log/cloud-init-output.log .
 # sudo touch git.log
 # sudo git log --name-status HEAD^..HEAD >> git.log
 # DATE=`date '+%Y-%m-%d-%H.%M.%S'`
 # s3=s3://$GIT_REPO-$DATE
 # sudo aws s3 mb $s3
 # sudo aws s3 cp . $s3  --recursive
-sudo shutdown -P
+# sudo shutdown -P

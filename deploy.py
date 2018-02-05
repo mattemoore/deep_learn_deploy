@@ -3,16 +3,25 @@ import sys
 from time import sleep
 import boto3
 
+# Deep Learning Instance configuration
 DEEP_LEARN_AMI = 'Deep Learning AMI (Ubuntu) Version 2.0'
 DEEP_LEARN_INSTANCE_TYPE = 'p2.xlarge'
+
+# Change from None if shelling in is needed...
+SECURITY_GROUP_NAME = 'SSH'
+KEY_PAIR_NAME = 'DeepLearningKeyPair-Virginia'
+
+# Differentiate from other instances that may be running
 DEPLOY_TAG = ['Name', 'DeepLearningBox']
 
 print('Hello. Starting deploy...')
 
 # Connect to EC2
-ec2 = boto3.client('ec2')
+session = boto3.session.Session()
+ec2 = session.client('ec2')
+creds = session.get_credentials()
 
-# Requst deep learning Spot Instance
+# Request deep learning Spot Instance
 print('Retrieving deep learning', '"' + DEEP_LEARN_AMI + '"',
       'AMI id for region', ec2._client_config.region_name + '...')
 image_filter = [{'Name': 'name',
@@ -23,13 +32,10 @@ print('Success - Retrieved AMI', image_id)
 
 print('Requesting deep learning spot instance from EC2...')
 
-# TODO: insert creds from awscli on deploy box into user_data
-# so we can upload script output to S3
-# S3_USER_KEY=s3key
-# S3_SECRET=s3secret
-
 with open('start.sh', 'r') as file:
     user_data = file.read()
+    user_data = user_data.replace('[key]', creds.access_key)
+    user_data = user_data.replace('[secret]', creds.secret_key)
 user_data = base64.b64encode(user_data.encode()).decode('ascii')
 
 launch_spec = {
@@ -37,6 +43,10 @@ launch_spec = {
     'UserData': user_data,
     'ImageId': image_id
 }
+
+if SECURITY_GROUP_NAME is not None:
+    launch_spec['SecurityGroups'] = [SECURITY_GROUP_NAME]
+    launch_spec['KeyName'] = KEY_PAIR_NAME
 
 response = ec2.request_spot_instances(
     InstanceCount=1,
