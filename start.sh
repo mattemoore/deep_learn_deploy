@@ -28,16 +28,26 @@ DL_ENV=tensorflow_p36
 S3_USER_KEY=[key] 
 S3_SECRET=[secret]
 
-sudo apt-get update
-sudo apt-get install git -y
-sudo apt-get install awscli -y
-sudo mkdir deep
+echo 'UPDATING PACKAGES...'
+apt-get update
+apt-get install git -y
+apt-get install awscli -y
+
+echo 'CLONING REPO...'
+cd /home/ubuntu
+mkdir deep
 cd deep
-sudo git clone https://github.com/$GIT_REPO
+git clone https://github.com/$GIT_REPO
 cd $PATH_TO_SCRIPT
-sudo mkdir $OUTPUT_DIR
-sudo bash -c "source ~/anaconda3/bin/activate $DL_ENV && THEANO_FLAGS=device=cuda python $SCRIPT_NAME > $OUTPUT_DIR/$SCRIPT_NAME.log"
+mkdir $OUTPUT_DIR
+chown -R ubuntu .
+
+echo 'RUNNING PYTHON DL SCRIPT...'
+# sudo bash -c "source /home/ubuntu/anaconda3/bin/activate $DL_ENV && THEANO_FLAGS=device=cuda python $SCRIPT_NAME > $OUTPUT_DIR/$SCRIPT_NAME.log" -s /bin/sh ubuntu
+su -c "source /home/ubuntu/anaconda3/bin/activate $DL_ENV && THEANO_FLAGS=device=cuda python $SCRIPT_NAME > $OUTPUT_DIR/$SCRIPT_NAME.log" -s /bin/bash ubuntu
 cd $OUTPUT_DIR
+
+echo 'PACKAGING AND UPLOADING OUTPUT...'
 # TODO: finish script output push to S3 bucket
 # sudo cp /var/log/cloud-init-output.log .
 # sudo touch git.log
@@ -46,4 +56,6 @@ cd $OUTPUT_DIR
 # s3=s3://$GIT_REPO-$DATE
 # sudo aws s3 mb $s3
 # sudo aws s3 cp . $s3  --recursive
+
+echo 'SHUTTING DOWN INSTANCE...'
 # sudo shutdown -P
