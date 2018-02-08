@@ -18,12 +18,14 @@ print('Hello. Starting deploy...')
 
 # Connect to EC2
 session = boto3.session.Session()
-ec2 = session.client('ec2')
 creds = session.get_credentials()
+ec2 = session.client('ec2')
+region = ec2._client_config.region_name
+
 
 # Request deep learning Spot Instance
 print('Retrieving deep learning', '"' + DEEP_LEARN_AMI + '"',
-      'AMI id for region', ec2._client_config.region_name + '...')
+      'AMI id for region', region + '...')
 image_filter = [{'Name': 'name',
                  'Values': [DEEP_LEARN_AMI]}]
 images = ec2.describe_images(Filters=image_filter)
@@ -36,6 +38,7 @@ with open('start.sh', 'r') as file:
     user_data = file.read()
     user_data = user_data.replace('[key]', creds.access_key)
     user_data = user_data.replace('[secret]', creds.secret_key)
+    user_data = user_data.replace('[region]', region)
 user_data = base64.b64encode(user_data.encode()).decode('ascii')
 
 launch_spec = {
@@ -74,8 +77,8 @@ while True:
                    Exiting program.  Bye.')
             sys.exit()
         else:
-            print('Update - Spot requst not fulfilled yet.\
-                   Current status', code + '...',
+            print('Update - Spot request not fulfilled yet.'
+                  'Current status', code + '...',
                   'Querying again...')
     else:
         print('Update - Spot instance details not available yet.',

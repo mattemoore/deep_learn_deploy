@@ -28,12 +28,16 @@ DL_ENV=tensorflow_p36
 # Filled in by deploy.py
 S3_USER_KEY=[key] 
 S3_SECRET=[secret]
+S3_REGION=[region]
 
 echo 'INSTALLING PACKAGES...'
 # apt-get update
 timedatectl set-timezone $TIMEZONE
 apt-get install git -y
 apt-get install awscli -y
+aws configure set default.region "$S3_REGION"
+aws configure set aws_access_key_id "$S3_USER_KEY"
+aws configure set aws_secret_access_key "$S3_SECRET"
 
 echo 'CLONING REPO...'
 cd /home/ubuntu
@@ -45,7 +49,7 @@ mkdir $SCRIPT_OUTPUT_DIR
 chown -R ubuntu .
 
 echo 'RUNNING PYTHON SCRIPT...'
-su -c "source /home/ubuntu/anaconda3/bin/activate $DL_ENV && THEANO_FLAGS=device=cuda python $SCRIPT_NAME > $OUTPUT_DIR/$SCRIPT_NAME.log" -s /bin/bash ubuntu
+su -c "source /home/ubuntu/anaconda3/bin/activate $DL_ENV && THEANO_FLAGS=device=cuda python $SCRIPT_NAME > $SCRIPT_OUTPUT_DIR/$SCRIPT_NAME.log" -s /bin/bash ubuntu
 
 echo 'PACKAGING AND UPLOADING OUTPUT...'
 cd $SCRIPT_OUTPUT_DIR
@@ -54,8 +58,7 @@ git log --name-status HEAD^..HEAD > git.log
 DATE=`date '+%Y-%m-%d-%H.%M.%S'`
 OUTPUT_FILE=output.$DATE.tar.gz
 tar -zcvf "$OUTPUT_FILE" .
-S3_URL=s3://$S3_BUCKET
-aws s3 cp $OUTPUT_FILE $S3_URL -O $S3_USER_KEY -W $S3_SECRET
+aws s3 cp $OUTPUT_FILE s3://$S3_BUCKET > "s3.log"
 
 echo 'SHUTTING DOWN INSTANCE...'
 # shutdown -P
