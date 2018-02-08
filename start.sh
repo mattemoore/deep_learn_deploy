@@ -61,4 +61,4 @@ tar -zcvf "$OUTPUT_FILE" .
 aws s3 cp $OUTPUT_FILE s3://$S3_BUCKET > "s3.log"
 
 echo 'SHUTTING DOWN INSTANCE...'
-# shutdown -P
+shutdown -P
