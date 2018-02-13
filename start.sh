@@ -2,8 +2,8 @@
 #cloud-boothook
 echo 'RUNNING USER SCRIPT...'
 TIMEZONE=America/Chicago
-GIT_REPO=lushdog/DeepLearning
-PATH_TO_SCRIPT=DeepLearning/deep_learn_deploy 
+GIT_REPO=lushdog/deep_learn_deploy
+PATH_TO_SCRIPT=deep_learn_deploy 
 SCRIPT_NAME=build_model.py
 SCRIPT_OUTPUT_DIR=output
 S3_BUCKET=deeplearningoutputs
@@ -32,6 +32,7 @@ S3_REGION=[region]
 
 echo 'INSTALLING PACKAGES...'
 # apt-get update
+export GZIP=-9
 timedatectl set-timezone $TIMEZONE
 apt-get install git -y
 apt-get install awscli -y
