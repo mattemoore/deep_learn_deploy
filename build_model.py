@@ -18,12 +18,6 @@ def get_data():
     test_file = 'dataset/test_32x32.mat'
     if not os.path.exists('dataset'):
         os.makedirs('dataset')
-    '''
-    with open(train_file, 'w'):
-        pass
-    with open(test_file, 'w'):
-        pass
-    '''
     print('Downloading SVHN dataset...')
     urlretrieve(train_url, train_file)
     urlretrieve(test_url, test_file)
@@ -32,8 +26,8 @@ def get_data():
     return train, test
 
 
-batch_size = 32
-epochs = 100
+batch_size = 64
+epochs = 1000
 num_classes = 10
 img_rows, img_cols = 32, 32
 num_colors = 3
@@ -68,17 +62,17 @@ y_train = keras.utils.to_categorical(y_train, num_classes)
 y_test = keras.utils.to_categorical(y_test, num_classes)
 
 model = Sequential()
-model.add(Conv2D(16, (3, 3),
+model.add(Conv2D(32, (3, 3),
           padding='valid',
           input_shape=input_shape,
           activation='relu'))
-model.add(Conv2D(16, (3, 3),
+model.add(Conv2D(32, (3, 3),
           activation='relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Dropout(0.25))
+model.add(Dropout(0.5))
 model.add(Flatten())
 model.add(Dense(128, activation='relu'))
-model.add(Dropout(0.25))
+model.add(Dropout(0.5))
 model.add(Dense(num_classes, activation='softmax'))
 
 start = datetime.now()
