@@ -51,7 +51,7 @@ find . -type f -exec cp {} $SCRIPT_OUTPUT_DIR \;
 chown -R ubuntu .
 
 echo 'RUNNING PYTHON SCRIPT...'
-su -c "source /home/ubuntu/anaconda3/bin/activate $DL_ENV && THEANO_FLAGS=device=cuda python $SCRIPT_NAME > $SCRIPT_OUTPUT_DIR/$SCRIPT_NAME.log" -s /bin/bash ubuntu
+su -c "source /home/ubuntu/anaconda3/bin/activate $DL_ENV && python $SCRIPT_NAME > $SCRIPT_OUTPUT_DIR/$SCRIPT_NAME.log" -s /bin/bash ubuntu
 
 echo 'PACKAGING AND UPLOADING OUTPUT...'
 cd $SCRIPT_OUTPUT_DIR
