@@ -47,6 +47,7 @@ cd deep
 git clone https://github.com/$GIT_REPO
 cd $PATH_TO_SCRIPT
 mkdir $SCRIPT_OUTPUT_DIR
+find . -type f -exec cp {} $SCRIPT_OUTPUT_DIR \;
 chown -R ubuntu .
 
 echo 'RUNNING PYTHON SCRIPT...'
