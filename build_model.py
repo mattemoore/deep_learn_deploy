@@ -26,8 +26,8 @@ def get_data():
     return train, test
 
 
-batch_size = 64
-epochs = 1000
+batch_size = 50
+epochs = 10000
 num_classes = 10
 img_rows, img_cols = 32, 32
 num_colors = 3
@@ -52,8 +52,9 @@ else:
 
 x_train = x_train.astype('float32')
 x_test = x_test.astype('float32')
-x_train /= 255
-x_test /= 255
+normalizer = x_train.max().astype('float32')
+x_train /= normalizer
+x_test /= normalizer
 print('x_train shape:', x_train.shape)
 print(x_train.shape[0], 'train samples')
 print(x_test.shape[0], 'test samples')
@@ -62,17 +63,22 @@ y_train = keras.utils.to_categorical(y_train, num_classes)
 y_test = keras.utils.to_categorical(y_test, num_classes)
 
 model = Sequential()
-model.add(Conv2D(32, (3, 3),
-          padding='valid',
+model.add(Conv2D(16, (5, 5),
+          padding='same',
           input_shape=input_shape,
           activation='relu'))
-model.add(Conv2D(32, (3, 3),
+model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Conv2D(32, (5, 5),
+          padding='same',
           activation='relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Dropout(0.5))
+model.add(Conv2D(64, (5, 5),
+          padding='same',
+          activation='relu'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Flatten())
 model.add(Dense(128, activation='relu'))
-model.add(Dropout(0.5))
+model.add(Dropout(0.8))
 model.add(Dense(num_classes, activation='softmax'))
 
 start = datetime.now()
