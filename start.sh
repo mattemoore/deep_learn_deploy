@@ -47,7 +47,7 @@ cd deep
 git clone https://github.com/$GIT_REPO
 cd $PATH_TO_SCRIPT
 mkdir $SCRIPT_OUTPUT_DIR
-find . not -path '*/\.*' -type f -exec cp {} $SCRIPT_OUTPUT_DIR \;
+find . -type d -path '*/\.*' -prune -o -not -name '.*' -type f -exec cp {} $SCRIPT_OUTPUT_DIR \;
 chown -R ubuntu .
 
 echo 'RUNNING PYTHON SCRIPT...'
@@ -57,7 +57,7 @@ echo 'PACKAGING AND UPLOADING OUTPUT...'
 cd $SCRIPT_OUTPUT_DIR
 cp /var/log/cloud*.log .
 git log --name-status HEAD^..HEAD > git.log
-DATE=`date '+%Y-%m-%d-%H.%M.%S'`
+DATE=`date '+%Y-%m-%d %H-%M-%S'`
 OUTPUT_FILE=$SCRIPT_NAME.$DATE.tar.gz
 tar -zcvf "$OUTPUT_FILE" .
 aws s3 cp $OUTPUT_FILE s3://$S3_BUCKET > "s3.log"
