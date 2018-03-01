@@ -27,7 +27,7 @@ def get_data():
 
 
 batch_size = 50
-epochs = 300
+epochs = 100
 num_classes = 10
 img_rows, img_cols = 32, 32
 num_colors = 3
