@@ -26,8 +26,8 @@ def get_data():
     return train, test
 
 
-batch_size = 50
-epochs = 100
+batch_size = 2000
+epochs = 50
 num_classes = 10
 img_rows, img_cols = 32, 32
 num_colors = 3
