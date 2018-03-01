@@ -60,7 +60,7 @@ cp /var/log/cloud*.log .
 git log --name-status HEAD^..HEAD > git.log 
 DATE=`date '+%Y-%m-%d %H-%M-%S'`
 OUTPUT_FILE=$SCRIPT_NAME.$DATE.tar.gz
-tar -zcvf "$OUTPUT_FILE" .
+tar -zcvf "$OUTPUT_FILE" *
 aws s3 cp "$OUTPUT_FILE" s3://$S3_BUCKET > "s3.log"
 
 echo 'SHUTTING DOWN INSTANCE...'
