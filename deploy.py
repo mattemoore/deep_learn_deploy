@@ -22,7 +22,6 @@ creds = session.get_credentials()
 ec2 = session.client('ec2')
 region = ec2._client_config.region_name
 
-
 # Request deep learning Spot Instance
 print('Retrieving deep learning', '"' + DEEP_LEARN_AMI + '"',
       'AMI id for region', region + '...')
