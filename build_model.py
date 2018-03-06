@@ -5,6 +5,7 @@ import keras
 from keras.models import Sequential
 from keras.layers import Dense, Conv2D, Flatten
 from keras.layers import MaxPooling2D, Dropout
+from keras.layers.advanced_activations import LeakyReLU
 from keras import backend as K
 from scipy.io import loadmat
 from datetime import datetime
@@ -26,7 +27,7 @@ def get_data():
     return train, test
 
 
-batch_size = 2000
+batch_size = 64
 epochs = 500
 num_classes = 10
 img_rows, img_cols = 32, 32
@@ -63,22 +64,29 @@ y_train = keras.utils.to_categorical(y_train, num_classes)
 y_test = keras.utils.to_categorical(y_test, num_classes)
 
 model = Sequential()
-model.add(Conv2D(16, (5, 5),
+model.add(Conv2D(16, (3, 3),
           padding='same',
           input_shape=input_shape,
-          activation='relu'))
+          activation=None))
+model.add(LeakyReLU(alpha=0.3))
 model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Conv2D(32, (5, 5),
+model.add(Dropout(0.2))
+model.add(Conv2D(32, (3, 3),
           padding='same',
-          activation='relu'))
+          activation=None))
+model.add(LeakyReLU(alpha=0.3))
 model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Conv2D(64, (5, 5),
+model.add(Dropout(0.2))
+model.add(Conv2D(64, (3, 3),
           padding='same',
-          activation='relu'))
+          activation=None))
+model.add(LeakyReLU(alpha=0.3))
 model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Dropout(0.2))
 model.add(Flatten())
 model.add(Dense(128, activation='relu'))
-model.add(Dropout(0.75))
+model.add(LeakyReLU(alpha=0.3))
+model.add(Dropout(0.2))
 model.add(Dense(num_classes, activation='softmax'))
 
 start = datetime.now()
