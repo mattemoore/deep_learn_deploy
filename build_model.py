@@ -27,7 +27,7 @@ def get_data():
     return train, test
 
 
-batch_size = 64
+batch_size = 32
 epochs = 500
 num_classes = 10
 img_rows, img_cols = 32, 32
@@ -64,20 +64,20 @@ y_train = keras.utils.to_categorical(y_train, num_classes)
 y_test = keras.utils.to_categorical(y_test, num_classes)
 
 model = Sequential()
-model.add(Conv2D(16, (3, 3),
+model.add(Conv2D(32, (3, 3),
           padding='same',
           input_shape=input_shape,
           activation=None))
 model.add(LeakyReLU(alpha=0.3))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.2))
-model.add(Conv2D(32, (3, 3),
+model.add(Conv2D(64, (3, 3),
           padding='same',
           activation=None))
 model.add(LeakyReLU(alpha=0.1))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.2))
-model.add(Conv2D(64, (3, 3),
+model.add(Conv2D(128, (3, 3),
           padding='same',
           activation=None))
 model.add(LeakyReLU(alpha=0.1))
