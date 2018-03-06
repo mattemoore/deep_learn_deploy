@@ -27,7 +27,7 @@ def get_data():
 
 
 batch_size = 2000
-epochs = 50
+epochs = 500
 num_classes = 10
 img_rows, img_cols = 32, 32
 num_colors = 3
@@ -78,7 +78,7 @@ model.add(Conv2D(64, (5, 5),
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Flatten())
 model.add(Dense(128, activation='relu'))
-model.add(Dropout(0.5))
+model.add(Dropout(0.75))
 model.add(Dense(num_classes, activation='softmax'))
 
 start = datetime.now()
