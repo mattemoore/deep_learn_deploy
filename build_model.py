@@ -27,8 +27,6 @@ def get_data():
     return train, test
 
 
-batch_size = 32
-epochs = 500
 num_classes = 10
 img_rows, img_cols = 32, 32
 num_colors = 3
@@ -63,30 +61,43 @@ print(x_test.shape[0], 'test samples')
 y_train = keras.utils.to_categorical(y_train, num_classes)
 y_test = keras.utils.to_categorical(y_test, num_classes)
 
+# hyper-params
+batch_size = 32
+epochs = 500
+filter_size = (3, 3)
+alpha = 0.1
+pool_size = (2, 2)
+dropout = 0.7
+padding = 'same'
+
 model = Sequential()
-model.add(Conv2D(32, (3, 3),
-          padding='same',
+
+model.add(Conv2D(32, filter_size,
+          padding=padding,
           input_shape=input_shape,
           activation=None))
-model.add(LeakyReLU(alpha=0.3))
-model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Dropout(0.2))
-model.add(Conv2D(64, (3, 3),
-          padding='same',
+model.add(LeakyReLU(alpha=alpha))
+model.add(MaxPooling2D(pool_size=pool_size))
+model.add(Dropout(dropout))
+
+model.add(Conv2D(64, filter_size,
+          padding=padding,
           activation=None))
-model.add(LeakyReLU(alpha=0.1))
-model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Dropout(0.2))
-model.add(Conv2D(128, (3, 3),
-          padding='same',
+model.add(LeakyReLU(alpha=alpha))
+model.add(MaxPooling2D(pool_size=pool_size))
+model.add(Dropout(dropout))
+
+model.add(Conv2D(128, filter_size,
+          padding=padding,
           activation=None))
-model.add(LeakyReLU(alpha=0.1))
-model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Dropout(0.2))
+model.add(LeakyReLU(alpha=alpha))
+model.add(MaxPooling2D(pool_size=pool_size))
+model.add(Dropout(dropout))
+
 model.add(Flatten())
 model.add(Dense(128, activation=None))
-model.add(LeakyReLU(alpha=0.1))
-model.add(Dropout(0.2))
+model.add(LeakyReLU(alpha=alpha))
+model.add(Dropout(dropout))
 model.add(Dense(num_classes, activation='softmax'))
 
 start = datetime.now()
