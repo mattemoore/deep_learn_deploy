@@ -62,12 +62,12 @@ y_train = keras.utils.to_categorical(y_train, num_classes)
 y_test = keras.utils.to_categorical(y_test, num_classes)
 
 # hyper-params
-batch_size = 32
+batch_size = 1000
 epochs = 500
 filter_size = (3, 3)
-alpha = 0.1
+alpha = 0.2
 pool_size = (2, 2)
-dropout = 0.7
+dropout = 0.25
 padding = 'same'
 
 model = Sequential()
