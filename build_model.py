@@ -4,7 +4,7 @@ import numpy as np
 import keras
 from keras.models import Sequential
 from keras.layers import Dense, Conv2D, Flatten
-from keras.layers import MaxPooling2D, Dropout
+from keras.layers import MaxPooling2D, Dropout, BatchNormalization
 from keras.layers.advanced_activations import LeakyReLU
 from keras import backend as K
 from scipy.io import loadmat
@@ -49,6 +49,9 @@ else:
     x_test = x_test.reshape(x_test.shape[3], img_rows, img_cols, num_colors)
     input_shape = (img_rows, img_cols, num_colors)
 
+y_train = y_train.astype('int32')
+y_test = y_test.astype('int32')
+
 x_train = x_train.astype('float32')
 x_test = x_test.astype('float32')
 normalizer = x_train.max().astype('float32')
@@ -60,10 +63,16 @@ print(x_test.shape[0], 'test samples')
 
 y_train = keras.utils.to_categorical(y_train, num_classes)
 y_test = keras.utils.to_categorical(y_test, num_classes)
+print('y_train shape:', y_train.shape)
+print(y_train.shape[0], 'train samples')
+print(y_test.shape[0], 'test samples')
+
+print(x_train[0])
+print(y_train[1])
 
 # hyper-params
-batch_size = 1000
-epochs = 500
+batch_size = 128
+epochs = 100
 filter_size = (3, 3)
 alpha = 0.2
 pool_size = (2, 2)
@@ -75,27 +84,34 @@ model = Sequential()
 model.add(Conv2D(32, filter_size,
           padding=padding,
           input_shape=input_shape,
-          activation=None))
+          activation=None,
+          bias=False))
 model.add(LeakyReLU(alpha=alpha))
+model.add(BatchNormalization())
 model.add(MaxPooling2D(pool_size=pool_size))
 model.add(Dropout(dropout))
 
 model.add(Conv2D(64, filter_size,
           padding=padding,
-          activation=None))
+          activation=None,
+          bias=False))
 model.add(LeakyReLU(alpha=alpha))
+model.add(BatchNormalization())
 model.add(MaxPooling2D(pool_size=pool_size))
 model.add(Dropout(dropout))
 
 model.add(Conv2D(128, filter_size,
           padding=padding,
-          activation=None))
+          activation=None,
+          bias=False))
 model.add(LeakyReLU(alpha=alpha))
+model.add(BatchNormalization())
 model.add(MaxPooling2D(pool_size=pool_size))
 model.add(Dropout(dropout))
 
 model.add(Flatten())
-model.add(Dense(128, activation=None))
+model.add(Dense(500, activation=None, bias=False))
+model.add(BatchNormalization())
 model.add(LeakyReLU(alpha=alpha))
 model.add(Dropout(dropout))
 model.add(Dense(num_classes, activation='softmax'))
