@@ -117,7 +117,7 @@ model.add(Dropout(dropout))
 model.add(Dense(num_classes, activation='softmax'))
 
 start = datetime.now()
-model.compile(optimizer=keras.optimizers.Adam(),
+model.compile(optimizer=keras.optimizers.RMSProp(),
               loss=keras.losses.categorical_crossentropy,
               metrics=['accuracy'])
 model.fit(x_train, y_train,
