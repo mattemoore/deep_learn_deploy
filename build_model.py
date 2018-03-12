@@ -110,7 +110,7 @@ model.add(MaxPooling2D(pool_size=pool_size))
 model.add(Dropout(dropout))
 
 model.add(Flatten())
-model.add(Dense(500, activation=None, bias=False))
+model.add(Dense(500, activation=None, use_bias=False))
 model.add(BatchNormalization())
 model.add(LeakyReLU(alpha=alpha))
 model.add(Dropout(dropout))
