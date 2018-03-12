@@ -85,7 +85,7 @@ model.add(Conv2D(32, filter_size,
           padding=padding,
           input_shape=input_shape,
           activation=None,
-          bias=False))
+          use_bias=False))
 model.add(LeakyReLU(alpha=alpha))
 model.add(BatchNormalization())
 model.add(MaxPooling2D(pool_size=pool_size))
@@ -94,7 +94,7 @@ model.add(Dropout(dropout))
 model.add(Conv2D(64, filter_size,
           padding=padding,
           activation=None,
-          bias=False))
+          use_bias=False))
 model.add(LeakyReLU(alpha=alpha))
 model.add(BatchNormalization())
 model.add(MaxPooling2D(pool_size=pool_size))
@@ -103,7 +103,7 @@ model.add(Dropout(dropout))
 model.add(Conv2D(128, filter_size,
           padding=padding,
           activation=None,
-          bias=False))
+          use_bias=False))
 model.add(LeakyReLU(alpha=alpha))
 model.add(BatchNormalization())
 model.add(MaxPooling2D(pool_size=pool_size))
@@ -117,7 +117,7 @@ model.add(Dropout(dropout))
 model.add(Dense(num_classes, activation='softmax'))
 
 start = datetime.now()
-model.compile(optimizer=keras.optimizers.RMSProp(),
+model.compile(optimizer=keras.optimizers.RMSprop(),
               loss=keras.losses.categorical_crossentropy,
               metrics=['accuracy'])
 model.fit(x_train, y_train,
