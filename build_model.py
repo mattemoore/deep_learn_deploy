@@ -72,7 +72,7 @@ print(y_train[1])
 
 # hyper-params
 batch_size = 128
-epochs = 200
+epochs = 500
 filter_size = (3, 3)
 alpha = 0.2
 pool_size = (2, 2)
