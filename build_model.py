@@ -74,9 +74,9 @@ print(y_train[1])
 batch_size = 128
 epochs = 500
 filter_size = (3, 3)
-alpha = 0.2
+alpha = 0.1
 pool_size = (2, 2)
-dropout = 0.5
+dropout = 0.8
 lr = 0.001
 padding = 'same'
 
