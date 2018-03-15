@@ -76,7 +76,7 @@ epochs = 500
 filter_size = (3, 3)
 alpha = 0.1
 pool_size = (2, 2)
-dropout = 0.8
+dropout = 0.3
 lr = 0.001
 padding = 'same'
 
